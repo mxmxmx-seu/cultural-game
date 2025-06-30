@@ -1,43 +1,45 @@
 import { useState, useRef } from 'react'
-// 修改：将命名导入改为默认导入，因为Button组件是默认导出的
 import Button from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "./components/ui/card"
 
-// Base64 placeholder images
+// 定义部署路径前缀
+const DEPLOY_PATH = process.env.NODE_ENV === 'production' ? '' : '';
+// 所有图片路径都添加部署前缀
 const images = {
-  yaoTomb: '/yaoling.jpg',
+  yaoTomb: `${DEPLOY_PATH}/yaoling.jpg`,
   
   // 剪纸工坊专用的牡丹纹样
   paperCutPatterns: [
-    '/papercut-peony1.jpg', // 剪纸专用图案1
-    '/papercut-peony2.jpg', // 剪纸专用图案2
+    `${DEPLOY_PATH}/papercut-peony1.jpg`,
+    `${DEPLOY_PATH}/papercut-peony2.jpg`,
   ],
   
   // 文创设计专用的牡丹图案
   designPatterns: [
-    '/design-peony1.jpg', // 设计专用图案1
-    '/design-peony2.jpg', // 设计专用图案2
-    '/design-peony3.jpg', // 设计专用图案3
+    `${DEPLOY_PATH}/design-peony1.jpg`,
+    `${DEPLOY_PATH}/design-peony2.jpg`,
+    `${DEPLOY_PATH}/design-peony3.jpg`,
   ],
 
   products: {
-    bookmark: '/bookmark-template.jpg',
-    postcard: '/postcard-template.jpg',
+    bookmark: `${DEPLOY_PATH}/bookmark-template.jpg`,
+    postcard: `${DEPLOY_PATH}/postcard-template.jpg`,
   },
 
   designProductsFinished: {
     bookmark: [
-      '/design-finished/bookmark-pattern1.jpg',
-      '/design-finished/bookmark-pattern2.jpg',
-      '/design-finished/bookmark-pattern3.jpg'
+      `${DEPLOY_PATH}/design-finished/bookmark-pattern1.jpg`,
+      `${DEPLOY_PATH}/design-finished/bookmark-pattern2.jpg`,
+      `${DEPLOY_PATH}/design-finished/bookmark-pattern3.jpg`
     ],
     postcard: [
-      '/design-finished/postcard-pattern1.jpg',
-      '/design-finished/postcard-pattern2.jpg',
-      '/design-finished/postcard-pattern3.jpg'
+      `${DEPLOY_PATH}/design-finished/postcard-pattern1.jpg`,
+      `${DEPLOY_PATH}/design-finished/postcard-pattern2.jpg`,
+      `${DEPLOY_PATH}/design-finished/postcard-pattern3.jpg`
     ]
   }
 }
+
 function HomeView({ gameProgress, setActiveModule }: {
   gameProgress: any,
   setActiveModule: (module: 'home' | 'yao' | 'papercut' | 'peony') => void
@@ -55,7 +57,7 @@ function HomeView({ gameProgress, setActiveModule }: {
           variant={gameProgress.yao.completed ? 'default' : 'outline'}
         >
           <div className="flex items-center">
-            <img src={images.yaoTomb} alt="" className="w-16 h-16 rounded mr-3 object-cover" />
+            <img src={images.yaoTomb} alt="尧陵遗址" className="w-16 h-16 rounded mr-3 object-cover" />
             尧陵遗址探秘 {gameProgress.yao.completed && '✓'}
           </div>
         </Button>
@@ -65,7 +67,7 @@ function HomeView({ gameProgress, setActiveModule }: {
           variant={gameProgress.papercut.completed ? 'default' : 'outline'}
         >
           <div className="flex items-center">
-            <img src={images.paperCutPatterns[0]} alt="" className="w-16 h-16 rounded mr-3 object-cover" />
+            <img src={images.paperCutPatterns[0]} alt="牡丹剪纸纹样" className="w-16 h-16 rounded mr-3 object-cover" />
             剪纸工坊体验 {gameProgress.papercut.completed && '✓'}
           </div>
         </Button>
@@ -75,7 +77,7 @@ function HomeView({ gameProgress, setActiveModule }: {
           variant={gameProgress.peony.completed ? 'default' : 'outline'}
         >
           <div className="flex items-center">
-            <img src={images.products.bookmark} alt="" className="w-16 h-16 rounded mr-3 object-cover" />
+            <img src={images.products.bookmark} alt="牡丹书签" className="w-16 h-16 rounded mr-3 object-cover" />
             牡丹文创设计 {gameProgress.peony.completed && '✓'}
           </div>
         </Button>
@@ -172,6 +174,9 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
   const [cutProgress, setCutProgress] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const dragAreaRef = useRef<HTMLDivElement>(null)
+  
+  // 新增：记录触摸开始时的位置
+  const [touchStartX, setTouchStartX] = useState(0)
 
   const steps = [
     "选择牡丹纹样",
@@ -179,7 +184,8 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
     "完成剪纸作品"
   ]
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  // 处理鼠标移动事件（桌面端）
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDragging || !dragAreaRef.current) return
     
     const rect = dragAreaRef.current.getBoundingClientRect()
@@ -188,21 +194,43 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
     setCutProgress(progress)
     
     if (progress >= 95 && currentStep === 1) {
-      setCurrentStep(2)
-      setIsDragging(false)
-      setGameProgress((prev: any) => ({
-        ...prev,
-        papercut: { 
-          completed: true, 
-          heritageValue: prev.papercut.heritageValue + 1 
-        }
-      }))
+      completeCutting()
     }
+  }
+
+  // 处理触摸移动事件（移动端）
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragAreaRef.current) return
+    e.preventDefault(); // 防止页面滚动
+    
+    const rect = dragAreaRef.current.getBoundingClientRect()
+    const touch = e.touches[0]
+    const x = Math.max(0, Math.min(touch.clientX - rect.left, rect.width))
+    const progress = Math.round((x / rect.width) * 100)
+    setCutProgress(progress)
+    
+    if (progress >= 95 && currentStep === 1) {
+      completeCutting()
+    }
+  }
+
+  // 完成剪纸逻辑
+  const completeCutting = () => {
+    setCurrentStep(2)
+    setIsDragging(false)
+    setGameProgress((prev: any) => ({
+      ...prev,
+      papercut: { 
+        completed: true, 
+        heritageValue: prev.papercut.heritageValue + 1 
+      }
+    }))
   }
 
   const resetCutting = () => {
     setCutProgress(0)
     setIsDragging(false)
+    setTouchStartX(0) // 重置触摸起始位置
   }
 
   const nextStep = () => {
@@ -260,9 +288,19 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
             
             <div 
               ref={dragAreaRef}
-              onMouseMove={handleMouseMove}
+              // 鼠标事件 - 桌面端
+              onMouseDown={() => setIsDragging(true)}
               onMouseUp={resetCutting}
               onMouseLeave={resetCutting}
+              onMouseMove={handleMouseMove}
+              // 触摸事件 - 移动端
+              onTouchStart={(e) => {
+                setIsDragging(true);
+                setTouchStartX(e.touches[0].clientX);
+              }}
+              onTouchEnd={resetCutting}
+              onTouchCancel={resetCutting}
+              onTouchMove={handleTouchMove}
               className="relative h-32 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden"
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -270,7 +308,6 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
                   <div 
                     className="absolute top-1/2 left-0 -translate-y-1/2 cursor-grab active:cursor-grabbing"
                     style={{ left: `${cutProgress}%` }}
-                    onMouseDown={() => setIsDragging(true)}
                   >
                     <div className="text-3xl">✂️</div>
                   </div>
@@ -354,7 +391,7 @@ function PeonyDesignView({ returnHome, gameProgress, setGameProgress }: {
   const [selectedProduct, setSelectedProduct] = useState<null | 'bookmark' | 'postcard'>(null)
   const [selectedPattern, setSelectedPattern] = useState<null | number>(null)
   const [isDownloading, setIsDownloading] = useState(false); // 下载状态
-  const canvasRef = useRef(null); // Canvas引用
+  const canvasRef = useRef<HTMLCanvasElement>(null); // Canvas引用
 
   const patterns = [
     { name: '富贵牡丹', meaning: '象征繁荣昌盛，家庭美满' },
@@ -392,11 +429,15 @@ function PeonyDesignView({ returnHome, gameProgress, setGameProgress }: {
     img.onload = () => {
       // 初始化Canvas
       const canvas = canvasRef.current;
+      if (!canvas) return;
+      
       canvas.width = img.width;
       canvas.height = img.height;
       
       // 绘制图片到Canvas
       const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
       ctx.drawImage(img, 0, 0);
       
       // 添加水印（可选）
