@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/cultural-game/static/css/main.b68e6a0c.css",
-    "main.js": "/cultural-game/static/js/main.1b358b54.js",
+    "main.js": "/cultural-game/static/js/main.4e9061a8.js",
     "static/js/453.70b4797f.chunk.js": "/cultural-game/static/js/453.70b4797f.chunk.js",
     "index.html": "/cultural-game/index.html",
     "main.b68e6a0c.css.map": "/cultural-game/static/css/main.b68e6a0c.css.map",
-    "main.1b358b54.js.map": "/cultural-game/static/js/main.1b358b54.js.map",
+    "main.4e9061a8.js.map": "/cultural-game/static/js/main.4e9061a8.js.map",
     "453.70b4797f.chunk.js.map": "/cultural-game/static/js/453.70b4797f.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b68e6a0c.css",
-    "static/js/main.1b358b54.js"
+    "static/js/main.4e9061a8.js"
   ]
 }
