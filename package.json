@@ -7,7 +7,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "react": "^18.2.0", // 降级到官方支持版本
+    "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
@@ -17,14 +17,13 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "gh-pages -d build" // 保留用于GitHub Pages
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
     ]
-    // 移除临时的rules配置
   },
   "browserslist": {
     "production": [
@@ -40,7 +39,7 @@
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.27.1",
-    "@types/react": "^18.0.37", // 更新类型定义
+    "@types/react": "^18.0.37", 
     "@types/react-dom": "^18.0.11",
     "autoprefixer": "^10.4.21",
     "gh-pages": "^6.3.0",
