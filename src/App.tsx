@@ -2,40 +2,38 @@ import { useState, useRef } from 'react'
 import Button from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "./components/ui/card"
 
-// 定义部署路径前缀
-const DEPLOY_PATH = process.env.NODE_ENV === 'production' ? '' : '';
-// 所有图片路径都添加部署前缀
+// 移除自定义DEPLOY_PATH，使用相对路径
 const images = {
-  yaoTomb: `${DEPLOY_PATH}/yaoling.jpg`,
+  yaoTomb: '/yaoling.jpg',
   
   // 剪纸工坊专用的牡丹纹样
   paperCutPatterns: [
-    `${DEPLOY_PATH}/papercut-peony1.jpg`,
-    `${DEPLOY_PATH}/papercut-peony2.jpg`,
+    '/papercut-peony1.jpg',
+    '/papercut-peony2.jpg',
   ],
   
   // 文创设计专用的牡丹图案
   designPatterns: [
-    `${DEPLOY_PATH}/design-peony1.jpg`,
-    `${DEPLOY_PATH}/design-peony2.jpg`,
-    `${DEPLOY_PATH}/design-peony3.jpg`,
+    '/design-peony1.jpg',
+    '/design-peony2.jpg',
+    '/design-peony3.jpg',
   ],
 
   products: {
-    bookmark: `${DEPLOY_PATH}/bookmark-template.jpg`,
-    postcard: `${DEPLOY_PATH}/postcard-template.jpg`,
+    bookmark: '/bookmark-template.jpg',
+    postcard: '/postcard-template.jpg',
   },
 
   designProductsFinished: {
     bookmark: [
-      `${DEPLOY_PATH}/design-finished/bookmark-pattern1.jpg`,
-      `${DEPLOY_PATH}/design-finished/bookmark-pattern2.jpg`,
-      `${DEPLOY_PATH}/design-finished/bookmark-pattern3.jpg`
+      '/design-finished/bookmark-pattern1.jpg',
+      '/design-finished/bookmark-pattern2.jpg',
+      '/design-finished/bookmark-pattern3.jpg'
     ],
     postcard: [
-      `${DEPLOY_PATH}/design-finished/postcard-pattern1.jpg`,
-      `${DEPLOY_PATH}/design-finished/postcard-pattern2.jpg`,
-      `${DEPLOY_PATH}/design-finished/postcard-pattern3.jpg`
+      '/design-finished/postcard-pattern1.jpg',
+      '/design-finished/postcard-pattern2.jpg',
+      '/design-finished/postcard-pattern3.jpg'
     ]
   }
 }
@@ -175,8 +173,8 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
   const [isDragging, setIsDragging] = useState(false)
   const dragAreaRef = useRef<HTMLDivElement>(null)
   
-  // 新增：记录触摸开始时的位置
-  const [touchStartX, setTouchStartX] = useState(0)
+  // 移除未使用的touchStartX变量
+  // const [touchStartX, setTouchStartX] = useState(0)
 
   const steps = [
     "选择牡丹纹样",
@@ -230,7 +228,6 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
   const resetCutting = () => {
     setCutProgress(0)
     setIsDragging(false)
-    setTouchStartX(0) // 重置触摸起始位置
   }
 
   const nextStep = () => {
@@ -294,10 +291,7 @@ function PaperCutView({ returnHome, gameProgress, setGameProgress, nextModule }:
               onMouseLeave={resetCutting}
               onMouseMove={handleMouseMove}
               // 触摸事件 - 移动端
-              onTouchStart={(e) => {
-                setIsDragging(true);
-                setTouchStartX(e.touches[0].clientX);
-              }}
+              onTouchStart={() => setIsDragging(true)}
               onTouchEnd={resetCutting}
               onTouchCancel={resetCutting}
               onTouchMove={handleTouchMove}
